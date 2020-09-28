@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>summoner-webhook</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='mainstyle.css') }}">
+</head>
+<body>
+    <h1>Currently Tracked:</h1>
+    <div class="tracked-box">
+    {% for summoner, stats in summoners_stats.items() %}
+        <div class="summoner-box">
+            <div class="summoner-header">
+                <h2>{{summoner}}</h2>
+            </div>
+            <div class="summoner-content">
+                <div class="summoner-stat">
+                    <h3>SoloDuo {{(stats.soloduo.wins/(stats.soloduo.wins + stats.soloduo.losses) * 100) | round(1, "floor")}} </h3>
+                        Rank: {{stats.soloduo.tier}} {{stats.soloduo.rank}} - {{stats.soloduo.lp}}LP
+                </div>
+                <div class="summoner-stat">
+                    <h3>Flex {{(stats.flex.wins/(stats.flex.wins + stats.flex.losses) * 100) | round(1, "floor")}}% </h3>
+                    Rank:  {{stats.flex.rank}} - {{stats.flex.lp}}LP
+                </div>
+                
+            </div>
+        </div>
+        {% endfor %}
+    </div> <!-- .tracked-box -->
+            
+
+        
+    
+</body>
+</html>

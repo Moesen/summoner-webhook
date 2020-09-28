@@ -1,0 +1,35 @@
+.tracked-box {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.summoner-box {
+    width: 400px;
+    background-color: lightgray;
+    border-radius: 15px;
+
+    margin: 20px;
+}
+
+.summoner-header {
+    text-align: center;
+}
+
+.summoner-header h2 {
+    padding: 0;
+    margin: 0;
+}
+
+.summoner-content {
+
+    display: flex;
+
+    justify-content: space-around;
+}
+
+
+.summoner-stat {
+    flex-grow: 1;
+    text-align: center;
+}
+
