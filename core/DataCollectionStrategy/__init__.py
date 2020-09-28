@@ -38,5 +38,13 @@ def is_valid_summoner_name(summoner_name: str) -> bool:
             f.write(f"{time.localtime()}: {exc.message}")
         return False
 
+def add_summoner_to_pool(summoner_name: str):
+    path = "core/DataCollectionStrategy/summoners.json"
+    summoners = json.loads(open(path, "r", encoding="utf-8").read())
+    print(summoners)
+    summoners = list({*summoners, summoner_name})
+    with open(path, "w", encoding="utf-8") as fb:
+        json.dump(summoners, fb)
+
 if __name__ == "__main__":
-    is_valid_summoner_name("Kongsnoze")
+    add_summoner_to_pool("test")
