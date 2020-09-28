@@ -110,7 +110,7 @@ def check_if_updated(summoner: dict, summoner_data: dict, queue_type: str) -> (b
 # Returns (New summoners, soloduo-update, flex-update)
 def update_stats(updated_summoners: list) -> list:
     try:
-        summoner_data = json.loads(open("core/DataStoringStrategy/summoners.json", "r").read())
+        summoner_data = json.loads(open("core/DataStoringStrategy/summoners_data.json", "r").read())
     except:
         summoner_data = {}
 
@@ -135,7 +135,7 @@ def update_stats(updated_summoners: list) -> list:
             summoner_data[name]["flex"] = create_new_cat_data(summoner["flex"])
             messages.append(flex_message)
         
-    with open("core/DataStoringStrategy/summoners.json", "w") as f:
+    with open("core/DataStoringStrategy/summoners_data.json", "w") as f:
         json.dump(summoner_data, f)
         print("saved")
 
