@@ -83,20 +83,22 @@ def create_new_summoner_entry(summoner) -> dict:
 
 def generate_message(value_change):
     if value_change > 0:
-        return random.choice(happy_word_pool) + " {} rose to {}"
+        return (random.choice(happy_word_pool) + " {} rose to {}")
     else:
         return random.choice(sad_word_pool) + "{} fell to {}"
 
 def calc_difference(old_rank, new_rank, name):
-    tier_dif = tier_stats[new_rank["tier"]] - tier_stats[old_rank["tier"]]
-    rank_dif = rank_stats[new_rank["rank"]] - rank_stats[old_rank["rank"]]
-    lp_dif = int(new_rank["leaguePoints"]) - int(old_rank["lp"])
-
+    try:
+        tier_dif = tier_stats[new_rank["tier"]] - tier_stats[old_rank["tier"]]
+        rank_dif = rank_stats[new_rank["rank"]] - rank_stats[old_rank["rank"]]
+        lp_dif = int(new_rank["leaguePoints"]) - int(old_rank["lp"])
+    except:
+        print(old_rank, new_rank, name)
     if tier_dif < 0 or rank_dif < 0 or lp_dif < 0:
-        message =  generate_message(-1).format(name, f"{new_rank['tier']}{new_rank['rank']}{new_rank['leaguePoints']}")
+        message =  generate_message(-1).format(name, f"{new_rank['tier']} {new_rank['rank']} {new_rank['leaguePoints']}")
         return (True, message)
     elif tier_dif > 0 or rank_dif > 0 or lp_dif > 0:
-        message = generate_message(1).format(name, f"{new_rank['tier']}{new_rank['rank']}{new_rank['leaguePoints']}")
+        message = generate_message(1).format(name, f"{new_rank['tier']} {new_rank['rank']} {new_rank['leaguePoints']}")
         return (True, message)
     else:
         return (False, "")
@@ -129,7 +131,7 @@ def update_stats(updated_summoners: list) -> list:
         flex_changed, flex_message = check_if_updated(summoner, summoner_data, "flex")
 
         if duo_changed:
-            summoner_data[name]["solduo"] = create_new_cat_data(summoner["solo_duo"])
+            summoner_data[name]["solduo"] = create_new_cat_data(summoner["soloduo"])
             messages.append(duo_message)
         if flex_changed:
             summoner_data[name]["flex"] = create_new_cat_data(summoner["flex"])

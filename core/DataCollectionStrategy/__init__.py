@@ -16,8 +16,13 @@ def get_stats(summoner_name: str) -> dict:
 
     me = watcher.summoner.by_name(my_region, summoner_name)   
     my_stats = watcher.league.by_summoner(my_region, me['id'])
+    flex, soloduo = None, None
 
-    return {**me, **{"flex": my_stats[0]}, **{"soloduo": my_stats[1]}}
+    if len(my_stats) > 0:
+        flex = next(x for x in my_stats if "queueType" in x.keys() and x["queueType"] == "RANKED_FLEX_SR")
+        soloduo = next(x for x in my_stats if "queueType" in x.keys() and x["queueType"] == "RANKED_SOLO_5x5")
+
+    return {**me, **{"flex": flex}, **{"soloduo": soloduo}}
 
 def get_stats_for_all() -> dict:
     summoners = json.loads(open("core/DataCollectionStrategy/summoners.json", "r", encoding="utf-8").read())
@@ -41,10 +46,9 @@ def is_valid_summoner_name(summoner_name: str) -> bool:
 def add_summoner_to_pool(summoner_name: str):
     path = "core/DataCollectionStrategy/summoners.json"
     summoners = json.loads(open(path, "r", encoding="utf-8").read())
-    print(summoners)
     summoners = list({*summoners, summoner_name})
     with open(path, "w", encoding="utf-8") as fb:
         json.dump(summoners, fb)
 
 if __name__ == "__main__":
-    add_summoner_to_pool("test")
+    get_stats("Kongsnooze")
