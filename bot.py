@@ -33,25 +33,6 @@ async def add(ctx: commands.Context, n1: int, n2: int):
     response = f"{n1} + {n2} = {sum}"
     await send_time_message(ctx, response)
 
-@bot.command(name="summoners", help="Shows who lp-bot is currently tracking")
-async def summoners(ctx: commands.Context):
-    summoners = json.loads(open("core/DataCollectionStrategy/summoners.json", "r", encoding="utf-8").read())
-    response = f"Currently tracking: **{'**, **'.join(summoners[:-1])}** and **{summoners[-1]}**"
-    await send_time_message(ctx, response)
-    await ctx.message.delete()
 
-@bot.command(name="addSummoner", help="Adds a new summoner to be tracked")
-async def add_summoner(ctx: commands.Context, summoner_name: str):
-    if is_admin(ctx):
-        if is_valid_summoner_name(summoner_name):
-            add_summoner_to_pool(summoner_name)
-            response = f"{summoner_name} has been added to the pool!\nAn update from the webhooks should occur in <=10 minutes."
-        else:
-            response = f"Could not find summoner {summoner_name}. Only tracking euw, might that be the problem?"
-    else:
-        response = f"Need adming privilige."
-
-    await send_time_message(ctx, response)
-        
 
 bot.run(TOKEN)

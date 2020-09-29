@@ -5,13 +5,15 @@ import random
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 from core.DataCollectionStrategy import get_stats_for_all
-from core.DataStoringStrategy.jsonStrategy import update_stats
+from core.DataStoringStrategy import postgresStrategy
 
 load_dotenv()
 webhook_url = os.getenv("WEBHOOK_URL")
 
 stats = get_stats_for_all()
 announcements = update_stats(stats)
+
+
 if len(announcements) > 0:
     webhook = DiscordWebhook(url=webhook_url, username="LP-Tracker")
 

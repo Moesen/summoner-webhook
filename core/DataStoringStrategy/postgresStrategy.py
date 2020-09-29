@@ -19,6 +19,7 @@ def connect():
         cur = conn.cursor()
         # cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
+        print("Error in connecting to Database\n")
         print(error)
     # finally:
     #     if conn is not None:
@@ -115,12 +116,68 @@ def insert_new_flex_stats(stats: list):
     conn.close()
 
 
+def get_recent_flex_stats() -> dict:
+    conn, cur = connect()
+
+    sql = """
+    SELECT summoners.summoner_name, summoners.puuid, flex_tier, flex_rank, flex_lp, max(flex_id)
+    FROM flex
+    INNER JOIN summoners ON summoners.puuid=flex.puuid
+    GROUP BY summoners.puuid, summoners.summoner_name, flex_tier, flex_rank, flex_lp; """
+
+    cur.execute(sql)
+    # print("The number of answers: " , cur.rowcount)
+
+    row = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return [
+        {"summoner_name": x[0],
+         "puuid": x[1],
+         "tier": x[2],
+         "rank": x[3],
+         "lp": x[4]}
+         for x in row
+    ]
+
+def get_recent_soloduo_stats() -> dict:
+    conn, cur = connect()
+
+    sql = """
+    SELECT summoners.summoner_name, summoners.puuid, soloduo_tier, soloduo_rank, soloduo_lp, max(solo_id)
+    FROM soloduo
+    INNER JOIN summoners ON summoners.puuid=soloduo.puuid
+    GROUP BY summoners.puuid, summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp;"""
+
+    cur.execute(sql)
+    # print("The number of answers: " , cur.rowcount)
+
+    row = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return [
+        {"summoner_name": x[0],
+         "puuid": x[1],
+         "tier": x[2],
+         "rank": x[3],
+         "lp": x[4]}
+         for x in row
+    ]
+
+def delete_summoner(puuid: str):
+    conn, cur = connect()
+
+    sql = """
+    DELETE FROM summoners WHERE summoners.puuid = '{}';
+    """
+    cur.execute(sql.format(puuid))
+    
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
-    init_datastructure()
-    insert_new_summoner("123", "Bis")
-    insert_new_soloduo_stats([("Gold", "IV", 32, "123")])
-    insert_new_soloduo_stats([("Gold", "IV", 32, "123")])
-    insert_new_soloduo_stats([("Gold", "IV", 32, "123")])
-    insert_new_flex_stats([("Gold", "IV", 32, "123")])
-    insert_new_flex_stats([("Gold", "IV", 32, "123")])
-    insert_new_flex_stats([("Gold", "IV", 32, "123")])
+    print(get_recent_soloduo_stats())

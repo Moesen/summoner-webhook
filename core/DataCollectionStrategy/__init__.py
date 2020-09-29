@@ -24,8 +24,7 @@ def get_stats(summoner_name: str) -> dict:
 
     return {**me, **{"flex": flex}, **{"soloduo": soloduo}}
 
-def get_stats_for_all() -> dict:
-    summoners = json.loads(open("core/DataCollectionStrategy/summoners.json", "r", encoding="utf-8").read())
+def get_stats_for_all(summoners: list) -> dict:
     return [get_stats(summoner_name) for summoner_name in summoners]
 
 def is_valid_summoner_name(summoner_name: str) -> bool:
