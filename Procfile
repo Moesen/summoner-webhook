@@ -1,3 +1,3 @@
-update: python update.py
+#update: python update.py
 worker: python bot.py
-web: gunicorn app:app
+#web: gunicorn app:app

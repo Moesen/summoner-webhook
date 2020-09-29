@@ -14,7 +14,7 @@ def get_stats(summoner_name: str) -> dict:
     watcher = LolWatcher(api_key)
     my_region = "euw1"
 
-    me = watcher.summoner.by_name(my_region, summoner_name)   
+    me = watcher.summoner.by_name(my_region, summoner_name)
     my_stats = watcher.league.by_summoner(my_region, me['id'])
     flex, soloduo = None, None
 
@@ -24,14 +24,15 @@ def get_stats(summoner_name: str) -> dict:
 
     return {**me, **{"flex": flex}, **{"soloduo": soloduo}}
 
-def get_stats_for_all(summoners: list) -> dict:
+
+def get_stats_for_all(summoners: list) -> list:
     return [get_stats(summoner_name) for summoner_name in summoners]
+
 
 def is_valid_summoner_name(summoner_name: str) -> bool:
     watcher = LolWatcher(api_key)
     region = "euw1"
 
-    
     try:
         summoner = watcher.summoner.by_name(region, summoner_name)
         return True
@@ -42,12 +43,14 @@ def is_valid_summoner_name(summoner_name: str) -> bool:
             f.write(f"{time.localtime()}: {exc.message}")
         return False
 
+
 def add_summoner_to_pool(summoner_name: str):
     path = "core/DataCollectionStrategy/summoners.json"
     summoners = json.loads(open(path, "r", encoding="utf-8").read())
     summoners = list({*summoners, summoner_name})
     with open(path, "w", encoding="utf-8") as fb:
         json.dump(summoners, fb)
+
 
 if __name__ == "__main__":
     print(get_stats("Kongsnooze"))

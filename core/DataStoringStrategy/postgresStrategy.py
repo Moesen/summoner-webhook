@@ -11,11 +11,12 @@ params = {
     "password": os.getenv("POSTGRES_PSW")
 }
 
+
 def connect():
     conn = None
     cur = None
     try:
-        conn =  psycopg2.connect(**params)
+        conn = psycopg2.connect(**params)
         cur = conn.cursor()
         # cur.close()
     except (Exception, psycopg2.DatabaseError) as error:
@@ -26,6 +27,7 @@ def connect():
     #         conn.close()
     return (conn, cur)
 
+
 def init_datastructure():
     commands = (
         """
@@ -35,9 +37,8 @@ def init_datastructure():
         """,
         """
         CREATE TABLE summoners (
-            puuid VARCHAR(100),
             summoner_name VARCHAR(255) NOT NULL,
-            PRIMARY KEY(puuid)
+            PRIMARY KEY(summoner_name)
         );
         """,
         """
@@ -46,10 +47,10 @@ def init_datastructure():
             soloduo_tier VARCHAR(30) NOT NULL,
             soloduo_rank VARCHAR(10) NOT NULL,
             soloduo_lp INTEGER NOT NULL,
-            puuid VARCHAR(100),
-            CONSTRAINT puuid
-                FOREIGN KEY(puuid)
-                    REFERENCES summoners(puuid)
+            summoner_name VARCHAR(100),
+            CONSTRAINT summoner_name
+                FOREIGN KEY(summoner_name)
+                    REFERENCES summoners(summoner_name)
                     ON DELETE CASCADE
         );
         """,
@@ -59,15 +60,15 @@ def init_datastructure():
             flex_tier VARCHAR(30) NOT NULL,
             flex_rank VARCHAR(10) NOT NULL,
             flex_lp INTEGER NOT NULL,
-            puuid VARCHAR(100),
-            CONSTRAINT puuid
-                FOREIGN KEY(puuid)
-                    REFERENCES summoners(puuid)
+            summoner_name VARCHAR(100),
+            CONSTRAINT summoner_name
+                FOREIGN KEY(summoner_name)
+                    REFERENCES summoners(summoner_name)
                     ON DELETE CASCADE
         );
         """
     )
-    
+
     conn, cur = connect()
 
     for command in commands:
@@ -77,53 +78,55 @@ def init_datastructure():
     conn.commit()
     conn.close()
 
-def insert_new_summoner(puuid: str, summoner_name: str):
+
+def insert_new_summoner(summoner_name: str):
     conn, cur = connect()
-    
-    sql = """INSERT INTO summoners(puuid, summoner_name) VALUES{}"""
-    cur.execute(sql.format((puuid, summoner_name)))
-    
+
+    sql = """INSERT INTO summoners VALUES ('{}');;"""
+    cur.execute(sql.format(summoner_name))
+
     cur.close()
     conn.commit()
     conn.close()
+
 
 def insert_new_soloduo_stats(stats: list):
     conn, cur = connect()
 
     sql = """
-    INSERT INTO soloduo(soloduo_tier, soloduo_rank, soloduo_lp, puuid)
+    INSERT INTO soloduo(soloduo_tier, soloduo_rank, soloduo_lp, summoner_name)
     VALUES{}
     """
-    cur.execute( sql.format(", ".join([str(stat) for stat in stats])) )
-
+    cur.execute(sql.format(", ".join([str(stat) for stat in stats])))
 
     cur.close()
     conn.commit()
     conn.close()
+
 
 def insert_new_flex_stats(stats: list):
     conn, cur = connect()
 
     sql = """
-    INSERT INTO flex(flex_tier, flex_rank, flex_lp, puuid)
+    INSERT INTO flex(flex_tier, flex_rank, flex_lp, summoner_name)
     VALUES{}
     """
 
-    cur.execute( sql.format(", ".join([str(stat) for stat in stats])) )
+    cur.execute(sql.format(", ".join([str(stat) for stat in stats])))
 
     cur.close()
     conn.commit()
     conn.close()
 
 
-def get_recent_flex_stats() -> dict:
+def get_recent_flex_stats() -> list:
     conn, cur = connect()
 
     sql = """
-    SELECT summoners.summoner_name, summoners.puuid, flex_tier, flex_rank, flex_lp, max(flex_id)
+    SELECT summoners.summoner_name , flex_tier, flex_rank, flex_lp, max(flex_id)
     FROM flex
-    INNER JOIN summoners ON summoners.puuid=flex.puuid
-    GROUP BY summoners.puuid, summoners.summoner_name, flex_tier, flex_rank, flex_lp; """
+    INNER JOIN summoners ON summoners.summoner_name=flex.summoner_name
+    GROUP BY summoners.summoner_name, flex_tier, flex_rank, flex_lp; """
 
     cur.execute(sql)
     # print("The number of answers: " , cur.rowcount)
@@ -132,23 +135,21 @@ def get_recent_flex_stats() -> dict:
     cur.close()
     conn.close()
 
-    return [
-        {"summoner_name": x[0],
-         "puuid": x[1],
-         "tier": x[2],
-         "rank": x[3],
-         "lp": x[4]}
-         for x in row
-    ]
+    return {x[0]: {
+        "tier": x[1],
+        "rank": x[2],
+        "lp": x[3]}
+        for x in row}
 
-def get_recent_soloduo_stats() -> dict:
+
+def get_recent_soloduo_stats() -> list:
     conn, cur = connect()
 
     sql = """
-    SELECT summoners.summoner_name, summoners.puuid, soloduo_tier, soloduo_rank, soloduo_lp, max(solo_id)
+    SELECT summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp, max(solo_id)
     FROM soloduo
-    INNER JOIN summoners ON summoners.puuid=soloduo.puuid
-    GROUP BY summoners.puuid, summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp;"""
+    INNER JOIN summoners ON summoners.summoner_name=soloduo.summoner_name
+    GROUP BY summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp;"""
 
     cur.execute(sql)
     # print("The number of answers: " , cur.rowcount)
@@ -157,27 +158,41 @@ def get_recent_soloduo_stats() -> dict:
     cur.close()
     conn.close()
 
-    return [
-        {"summoner_name": x[0],
-         "puuid": x[1],
-         "tier": x[2],
-         "rank": x[3],
-         "lp": x[4]}
-         for x in row
-    ]
+    return {x[0]: {
+        "tier": x[1],
+        "rank": x[2],
+        "lp": x[3]}
+        for x in row}
+
 
 def delete_summoner(puuid: str):
     conn, cur = connect()
 
     sql = """
-    DELETE FROM summoners WHERE summoners.puuid = '{}';
+    DELETE FROM summoners WHERE summoners.summoner_name = '{}';
     """
     cur.execute(sql.format(puuid))
-    
+
     cur.close()
     conn.commit()
     conn.close()
 
 
+def get_summoners() -> list:
+    conn, cur = connect()
+
+    sql = """
+    SELECT * FROM summoners;
+    """
+
+    cur.execute(sql)
+    summoners = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return [x[0] for x in summoners]
+
+
 if __name__ == "__main__":
-    print(get_recent_soloduo_stats())
+    insert_new_flex_stats([("123", "123", 123, "KongSnooze")])
