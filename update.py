@@ -5,7 +5,7 @@ import random
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 from core.DataCollectionStrategy import get_stats_for_all
-from core.DataStoringStrategy import update_stats
+from core.DataStoringStrategy.jsonStrategy import update_stats
 
 load_dotenv()
 webhook_url = os.getenv("WEBHOOK_URL")

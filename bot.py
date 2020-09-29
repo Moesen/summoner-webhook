@@ -25,13 +25,13 @@ async def send_time_message(ctx, message):
 @bot.command(name="hi", help="Checks if alive")
 async def answer(ctx: commands.Context):
     response = "Who dis?"
-    send_time_message(ctx, response)
+    await send_time_message(ctx, response)
 
 @bot.command(name="add", help="Adds to ints")
 async def add(ctx: commands.Context, n1: int, n2: int):
     sum = n1 + n2
     response = f"{n1} + {n2} = {sum}"
-    send_time_message(ctx, response)
+    await send_time_message(ctx, response)
 
 @bot.command(name="summoners", help="Shows who lp-bot is currently tracking")
 async def summoners(ctx: commands.Context):

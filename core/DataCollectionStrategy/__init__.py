@@ -51,4 +51,4 @@ def add_summoner_to_pool(summoner_name: str):
         json.dump(summoners, fb)
 
 if __name__ == "__main__":
-    get_stats("Kongsnooze")
+    print(get_stats("Kongsnooze"))
