@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 
 from core.DataStoringStrategy import postgresStrategy
 from core.DataCollectionStrategy import is_valid_summoner_name
-import update
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
