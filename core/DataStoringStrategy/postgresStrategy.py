@@ -25,7 +25,7 @@ def connect():
     # finally:
     #     if conn is not None:
     #         conn.close()
-    return (conn, cur)
+    return conn, cur
 
 
 def init_datastructure():
@@ -112,6 +112,7 @@ def insert_new_flex_stats(stats: list):
     VALUES{}
     """
 
+    print(stats)
     cur.execute(sql.format(", ".join([str(stat) for stat in stats])))
 
     cur.close()
@@ -119,14 +120,15 @@ def insert_new_flex_stats(stats: list):
     conn.close()
 
 
-def get_recent_flex_stats() -> list:
+def get_recent_flex_stats() -> dict:
     conn, cur = connect()
 
     sql = """
-    SELECT summoners.summoner_name , flex_tier, flex_rank, flex_lp, max(flex_id)
-    FROM flex
-    INNER JOIN summoners ON summoners.summoner_name=flex.summoner_name
-    GROUP BY summoners.summoner_name, flex_tier, flex_rank, flex_lp; """
+    SELECT summoners.summoner_name, flex_tier, flex_rank, flex_lp FROM summoners
+    JOIN (SELECT summoner_name, max(flex_id) as max_id FROM flex
+	GROUP BY summoner_name) as pu
+	ON summoners.summoner_name = pu.summoner_name
+    JOIN flex ON flex.flex_id = pu.max_id; """
 
     cur.execute(sql)
     # print("The number of answers: " , cur.rowcount)
@@ -142,14 +144,15 @@ def get_recent_flex_stats() -> list:
         for x in row}
 
 
-def get_recent_soloduo_stats() -> list:
+def get_recent_soloduo_stats() -> dict:
     conn, cur = connect()
 
     sql = """
-    SELECT summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp, max(solo_id)
-    FROM soloduo
-    INNER JOIN summoners ON summoners.summoner_name=soloduo.summoner_name
-    GROUP BY summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp;"""
+    SELECT summoners.summoner_name, soloduo_tier, soloduo_rank, soloduo_lp FROM summoners
+    JOIN (SELECT summoner_name, max(solo_id) as max_id FROM soloduo
+	GROUP BY summoner_name) as pu
+	ON summoners.summoner_name = pu.summoner_name
+    JOIN soloduo ON soloduo.solo_id = pu.max_id;"""
 
     cur.execute(sql)
     # print("The number of answers: " , cur.rowcount)
@@ -165,13 +168,13 @@ def get_recent_soloduo_stats() -> list:
         for x in row}
 
 
-def delete_summoner(puuid: str):
+def delete_summoner(summoner_name: str):
     conn, cur = connect()
 
     sql = """
     DELETE FROM summoners WHERE summoners.summoner_name = '{}';
     """
-    cur.execute(sql.format(puuid))
+    cur.execute(sql.format(summoner_name))
 
     cur.close()
     conn.commit()
@@ -195,4 +198,4 @@ def get_summoners() -> list:
 
 
 if __name__ == "__main__":
-    insert_new_flex_stats([("123", "123", 123, "KongSnooze")])
+    init_datastructure()
