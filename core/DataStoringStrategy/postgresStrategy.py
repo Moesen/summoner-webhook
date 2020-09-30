@@ -72,6 +72,7 @@ def init_datastructure():
     conn, cur = connect()
 
     for command in commands:
+        print(f"Running: {command}")
         cur.execute(command)
 
     cur.close()
@@ -198,4 +199,9 @@ def get_summoners() -> list:
 
 
 if __name__ == "__main__":
-    init_datastructure()
+    try:
+        init_datastructure()
+    except:
+        print("Failed making tables")
+    else:
+        print("Made table")
